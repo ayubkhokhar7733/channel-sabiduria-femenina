@@ -538,6 +538,34 @@ def run_pipeline(
                 log(f"✅ Using exact winning reference thumbnail: {thumbnail_path}")
                 break
 
+    # Auto-enhance source creator thumbnail to Full HD with crisp edges and enhanced colors
+    if not thumbnail_path and yt_meta and yt_meta.get("thumbnail_url"):
+        try:
+            import urllib.request
+            from PIL import Image, ImageEnhance, ImageFilter
+            src_thumb_url = yt_meta["thumbnail_url"]
+            if vid_id and ("img.youtube.com" in src_thumb_url or "i.ytimg.com" in src_thumb_url):
+                src_thumb_url = f"https://i.ytimg.com/vi/{vid_id}/maxresdefault.jpg"
+            temp_dl = os.path.join(config.TEMP_DIR, f"raw_thumb_{vid_id or 'src'}.jpg")
+            try:
+                urllib.request.urlretrieve(src_thumb_url, temp_dl)
+            except Exception:
+                if yt_meta.get("thumbnail_url"):
+                    urllib.request.urlretrieve(yt_meta["thumbnail_url"], temp_dl)
+            if os.path.exists(temp_dl) and os.path.getsize(temp_dl) > 2000:
+                img = Image.open(temp_dl).convert("RGB")
+                enhanced = img.resize((1920, 1080), Image.Resampling.LANCZOS)
+                enhanced = enhanced.filter(ImageFilter.UnsharpMask(radius=1.8, percent=140, threshold=2))
+                enhanced = ImageEnhance.Contrast(enhanced).enhance(1.07)
+                enhanced = ImageEnhance.Color(enhanced).enhance(1.08)
+                enhanced = ImageEnhance.Sharpness(enhanced).enhance(1.12)
+                target_thumb = os.path.join(config.OUTPUT_DIR, f"thumb_{vid_id or 'enhanced'}.jpg")
+                enhanced.save(target_thumb, "JPEG", quality=98, subsampling=0)
+                thumbnail_path = target_thumb
+                log(f"✅ Successfully enhanced reference thumbnail to 1080p HD: {thumbnail_path}")
+        except Exception as e:
+            log(f"⚠️ Source thumbnail enhancement note: {e}")
+
     if not thumbnail_path and "nazareth" in (detected_speaker or "").lower() and os.path.exists(os.path.join(config.ASSETS_DIR, "clean_armchair_plate.jpg")):
         try:
             from generate_winning_armchair_thumb import render_winning_thumbnail
