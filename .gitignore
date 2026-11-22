@@ -43,7 +43,9 @@ assets/temp/
 *.mp4
 *.wav
 *.mp3
-!data/incoming_audio/*.mp3
+data/incoming_audio/*.mp3
+!data/incoming_audio/*.part*
+!data/incoming_audio/*.json
 *.zip
 !assets/intro.mp4
 !assets/outro.mp4
