@@ -539,19 +539,20 @@ def run_pipeline(
                 break
 
     # Auto-enhance source creator thumbnail to Full HD with crisp edges and enhanced colors
-    if not thumbnail_path and yt_meta and yt_meta.get("thumbnail_url"):
+    yt_meta_info = locals().get("yt_data") or locals().get("yt_meta")
+    if not thumbnail_path and yt_meta_info and yt_meta_info.get("thumbnail_url"):
         try:
             import urllib.request
             from PIL import Image, ImageEnhance, ImageFilter
-            src_thumb_url = yt_meta["thumbnail_url"]
+            src_thumb_url = yt_meta_info["thumbnail_url"]
             if vid_id and ("img.youtube.com" in src_thumb_url or "i.ytimg.com" in src_thumb_url):
                 src_thumb_url = f"https://i.ytimg.com/vi/{vid_id}/maxresdefault.jpg"
             temp_dl = os.path.join(config.TEMP_DIR, f"raw_thumb_{vid_id or 'src'}.jpg")
             try:
                 urllib.request.urlretrieve(src_thumb_url, temp_dl)
             except Exception:
-                if yt_meta.get("thumbnail_url"):
-                    urllib.request.urlretrieve(yt_meta["thumbnail_url"], temp_dl)
+                if yt_meta_info.get("thumbnail_url"):
+                    urllib.request.urlretrieve(yt_meta_info["thumbnail_url"], temp_dl)
             if os.path.exists(temp_dl) and os.path.getsize(temp_dl) > 2000:
                 img = Image.open(temp_dl).convert("RGB")
                 enhanced = img.resize((1920, 1080), Image.Resampling.LANCZOS)
