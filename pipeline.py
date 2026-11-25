@@ -301,6 +301,11 @@ def run_pipeline(
     # Clean working temp directory before starting
     cleanup_temp()
 
+    # Pre-flight YouTube OAuth verification (fail-fast in 2s instead of wasting 1h rendering)
+    if upload_to_youtube and not dry_run:
+        log("🔑 [Pre-Flight] Verifying YouTube OAuth credentials before rendering...")
+        youtube_uploader.get_youtube_client()
+
     speaker_badge_overlay = None
     detected_speaker = speaker_name or ""
 
