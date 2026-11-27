@@ -340,78 +340,84 @@ def spin_motivational_metadata(
     config.reload()
     api_key = config.GROQ_API_KEY
 
-    clean_speaker = speaker_name.strip() if speaker_name else "Dr Mario"
+    clean_speaker = speaker_name.strip() if speaker_name else "Nilda Chiaraviglio"
     is_spanish = bool(re.search(r'[áéíóúñ¿¡]', f"{original_title} {original_description} {transcript}", re.IGNORECASE)) or any(w in f"{original_title.lower()} {transcript[:200].lower()}" for w in [" en ", " de ", " la ", " el ", " tu ", " que ", " como ", " para "])
 
     def _fallback_spin():
         if is_spanish:
             templates = [
-                f"La Verdad Sobre Tu Mente Que Nadie Te Cuenta | {clean_speaker}",
-                f"La Regla Neurocientífica Que Cambia Tu Cerebro | {clean_speaker}",
-                f"Por Qué el 99% Pierde Su Enfoque Mental | {clean_speaker}",
-                f"Haz Esto Con Tu Mente y Cambiarás Para Siempre | {clean_speaker}",
-                f"Lo Que Tu Cerebro Necesita Que Guardes en Secreto | {clean_speaker}",
+                f"Lo Que Toda Mujer Fuerte Debe Aprender a Soltar | {clean_speaker}",
+                f"La Razón Psicológica Por La Que Te Cuesta Decir No | {clean_speaker}",
+                f"El Secreto de las Mujeres Que No Dependen de Nadie | {clean_speaker}",
+                f"Cuando Aprendes a Amarte, Todo en Tu Vida Cambia | {clean_speaker}",
+                f"Lo Que Nadie Te Dice Sobre Sanar Tus Relaciones | {clean_speaker}",
             ]
             spun_title = truncate_title(random.choice(templates), max_length=70)
             spun_desc = (
-                f"Poderoso mensaje de {clean_speaker} sobre psicología, disciplina, mentalidad y superación personal.\n\n"
-                f"\"Si quieres cambiar tu vida, debes estar dispuesto a hacer lo que la mayoría evita.\"\n\n"
-                f"Voz / Orador: {clean_speaker}\n"
-                f"Canal: Hábitos de Acero\n\n"
-                f"Suscríbete a Hábitos de Acero para tu dosis de disciplina, mentalidad y crecimiento personal."
+                f"Reflexión profunda de {clean_speaker} sobre psicología femenina, amor propio, relaciones de pareja y madurez emocional.\n\n"
+                f"\"El amor propio no es egoísmo; es la base para amar y ser amada sin perder tu dignidad ni rogar afecto.\"\n\n"
+                f"Voz / Especialista: {clean_speaker}\n"
+                f"Canal: Sabiduría Femenina\n\n"
+                f"Suscríbete a Sabiduría Femenina para reflexiones diarias de psicología, amor propio, límites sanos y bienestar emocional."
             )
             base_tags = [
                 clean_speaker.lower(),
-                "habitos de acero",
-                "dr mario",
-                "mario alonso puig",
-                "motivacion",
-                "psicologia",
+                "sabiduria femenina",
+                "psicologia femenina",
+                "amor propio",
+                "relaciones de pareja",
+                "autoestima mujer",
+                "dependencia emocional",
+                "sanar heridas",
+                "limites sanos",
+                "madurez emocional",
+                "nilda chiaraviglio reflexiones",
                 "desarrollo personal",
-                "disciplina",
-                "mentalidad ganadora",
-                "exito",
-                "superacion personal",
-                "liderazgo",
+                "pareja consciente",
+                "mujeres que viven solas",
+                "crecimiento personal",
             ]
+            hook = "APRENDE A SOLTAR"
         else:
             templates = [
-                f"The Uncomfortable Truth Nobody Wants To Hear | {clean_speaker}",
-                f"The One Rule That Changes Your Mind Forever | {clean_speaker}",
-                f"Why 99% Of People Lose Their Mental Focus | {clean_speaker}",
-                f"Do This For Your Brain And Watch Your Life Change | {clean_speaker}",
-                f"What Your Brain Needs You To Keep Secret | {clean_speaker}",
+                f"The Psychological Truth Every Strong Woman Needs | {clean_speaker}",
+                f"Why You Struggle To Set Boundaries In Relationships | {clean_speaker}",
+                f"The Secret Of Women Who Never Depend On Anyone | {clean_speaker}",
+                f"When You Learn Self-Love, Everything Changes | {clean_speaker}",
+                f"What Nobody Tells You About Healing Past Wounds | {clean_speaker}",
             ]
             spun_title = truncate_title(random.choice(templates), max_length=70)
             spun_desc = (
-                f"Powerful motivational speech featuring {clean_speaker} on mindset, relentless discipline, and overcoming adversity.\n\n"
-                f"\"If you want to change your life, you have to be willing to do the things everyone else avoids.\"\n\n"
-                f"Speaker: {clean_speaker}\n"
-                f"Channel: Hábitos de Acero\n\n"
-                f"Subscribe to Hábitos de Acero for daily motivation, life lessons, and personal growth."
+                f"Deep reflection featuring {clean_speaker} on feminine psychology, self-worth, conscious relationships, and emotional maturity.\n\n"
+                f"\"Self-love is never selfish; it is the foundation to love and be loved without sacrificing your dignity.\"\n\n"
+                f"Speaker / Expert: {clean_speaker}\n"
+                f"Channel: Sabiduría Femenina\n\n"
+                f"Subscribe to Sabiduría Femenina for daily psychology insights, self-love, healthy boundaries, and personal growth."
             )
             base_tags = [
                 clean_speaker.lower(),
-                f"{clean_speaker.lower()} motivation",
-                f"{clean_speaker.lower()} speech",
-                "motivation",
-                "motivational speech",
-                "discipline",
-                "mental toughness",
-                "mindset",
-                "success motivation",
+                "sabiduria femenina",
+                f"{clean_speaker.lower()} psychology",
+                "feminine psychology",
+                "self love",
+                "healthy relationships",
+                "emotional maturity",
+                "self worth",
+                "women empowerment",
             ]
+            hook = "HEAL YOUR PAST"
         return {
             "title": spun_title,
             "description": spun_desc,
             "tags": base_tags[:18],
             "category": "Education",
             "speaker_name": clean_speaker,
+            "thumbnail_hook": hook,
         }
 
     is_generic_speaker = clean_speaker.lower() in (
         "motivational speaker", "motivational leader", "inspirational leader",
-        "habitos de acero", "hábitos de acero", "sabiduría diaria", "sabiduria diaria", "unknown", "orador motivacional"
+        "sabiduría femenina", "sabiduria femenina", "unknown", "orador motivacional"
     )
 
     if mock or not api_key or api_key.startswith("gsk_placeholder") or "your_" in api_key:
@@ -423,40 +429,41 @@ def spin_motivational_metadata(
 
         title_rule = (
             "   - MANDATORY TITLE STRUCTURE:\n"
-            "     * NEVER start the title with the speaker's name or a colon (DO NOT write 'Speaker: Hook' or 'Dr Mario: ...').\n"
+            "     * NEVER start the title with the speaker's name or a colon (DO NOT write 'Speaker: Hook' or 'Nilda: ...').\n"
             "     * ALWAYS put the psychological curiosity hook / lesson / question FIRST for maximum mobile CTR.\n"
             f"     * Place the speaker at the end separated by a pipe ' | ', format: '[Curiosity Hook / Number of Secrets / Question] | {clean_speaker}'\n"
-            f"     * If the original title contains a high-performing hook (e.g. 'Cuando Te Relajas, Todo Lo Bueno Llega a Tu Vida'), PRESERVE that proven core phrasing!\n"
-            "     * Example: 'Cuando Te Relajas, Todo Lo Bueno Llega a Tu Vida | Dr Mario'\n"
-            "     * Example: 'Esta Verdad Cambiará Tu Vida Para Siempre | Dr Mario'\n"
+            f"     * If the original title contains a high-performing hook (e.g. 'Las Mujeres Que Viven Solas, Sin Marido...'), PRESERVE that proven core phrasing!\n"
             "     * Max length: 70-78 characters total so it fits on YouTube mobile feeds.\n"
         )
 
         prompt = (
-            "You are an elite YouTube SEO strategist specializing in high-performing educational & motivational self-improvement channels (like Hábitos de Acero, Sabiduría Diaria, Motiversity).\n"
-            "IMPORTANT: Detect the source language. If the source title or transcript is in Spanish, ALL output (title, description, tags) MUST BE IN SPANISH (Español). If English, output in English.\n"
+            "You are an elite YouTube SEO strategist specializing in high-performing feminine psychology, emotional maturity, relationship advice, and self-love channels (like Sabiduría Femenina, Espacio Femenino, Psicología Consciente).\n"
+            "IMPORTANT: Detect the source language. If the source title or transcript is in Spanish, ALL output (title, description, tags, thumbnail_hook) MUST BE IN SPANISH (Español). If English, output in English.\n"
             "Given the original video title, description, and transcript snippet below, generate:\n\n"
             "1. TITLE (50-78 characters max):\n"
-            "   - Re-write or optimize the original title for maximum CTR and curiosity gap.\n"
+            "   - Re-write or optimize the original title for maximum CTR, emotional resonance, and curiosity gap in feminine psychology.\n"
             f"{title_rule}"
             "   - Clean formatting: Capitalize First Letters, no all-caps sentences, no emojis.\n"
-            "   - High CTR, direct, intriguing, urgent.\n\n"
+            "   - High CTR, direct, intriguing, addressing emotional pain points (boundaries, rejection, love, respect).\n\n"
             "2. DESCRIPTION (150-250 words in the same language):\n"
-            f"   - Line 1 MUST be 3-4 top niche hashtags: #{clean_speaker.lower().replace(' ', '')} #habitosdeacero #desarrollopersonal #disciplina\n"
+            f"   - Line 1 MUST be 4-5 top niche hashtags: #{clean_speaker.lower().replace(' ', '')} #sabiduriafemenina #psicologiafemenina #amorpropio #relacionesdepareja\n"
             "   - Next 2-3 sentences: An irresistible hook explaining why the viewer must watch, summarizing the core insight.\n"
             "   - Highlight a powerful quote extracted from the transcript in quotes.\n"
-            f"   - Editorial credit: 'Voz / Orador: {clean_speaker}'.\n"
-            "   - Add 3-4 bullet lines answering common search queries (e.g. ¿Cómo fortalecer la mente?, Técnicas para transformar tus hábitos).\n"
-            "   - End with: 'Suscríbete a Hábitos de Acero para tu dosis de disciplina, liderazgo y crecimiento personal.'\n\n"
+            f"   - Editorial credit: 'Voz / Especialista: {clean_speaker}'.\n"
+            "   - Add 3-4 bullet lines answering common search queries (e.g. ¿Cómo poner límites sin culpa?, Claves para recuperar tu autoestima, Por qué atraes a las mismas parejas).\n"
+            "   - End with: 'Suscríbete a Sabiduría Femenina para reflexiones profundas de psicología, amor propio, relaciones conscientes y bienestar emocional.'\n\n"
             "3. TAGS (15-20 tags in the same language):\n"
-            f"   - Mix of specific tags (habitos de acero, dr mario, mario alonso puig, desarrollo personal, disciplina, {clean_speaker.lower()}) and top search queries.\n\n"
-            "4. CATEGORY: 'Education'.\n\n"
+            f"   - Mix of specific tags (sabiduria femenina, {clean_speaker.lower()}, psicologia femenina, amor propio, relaciones de pareja, autoestima mujer, dependencia emocional, limites sanos) and top search queries.\n\n"
+            "4. THUMBNAIL_HOOK (2 to 4 words max in ALL CAPS):\n"
+            "   - Ultra punchy 2-4 words designed to create an instant emotional hook for mobile viewers.\n"
+            "   - Examples: 'JAMÁS REVELES ESTO', 'NO LE RUEGUES', 'APRENDE A SOLTAR', 'MEREZCO RESPETO', 'NO TE VALORA'\n\n"
+            "5. CATEGORY: 'Education'.\n\n"
             f"ORIGINAL TITLE: {original_title}\n"
             f"ORIGINAL DESCRIPTION SNIPPET: {original_description[:400]}\n"
             f"SPEAKER: {clean_speaker}\n"
             f"TRANSCRIPT SNIPPET: {transcript[:500]}\n\n"
             "Output strictly valid JSON:\n"
-            "{\"title\": \"...\", \"description\": \"...\", \"tags\": [...], \"category\": \"Education\"}"
+            "{\"title\": \"...\", \"description\": \"...\", \"tags\": [...], \"thumbnail_hook\": \"...\", \"category\": \"Education\"}"
         )
 
         resp = client.chat.completions.create(
@@ -469,7 +476,7 @@ def spin_motivational_metadata(
         raw_title = data.get("title", "")
         if is_generic_speaker:
             raw_title = re.sub(r'^(motivational\s+(?:speaker|leader|speech)\s*[:\-–—]\s*)', '', raw_title, flags=re.IGNORECASE).strip()
-            raw_title = re.sub(r'^(h[aá]bitos\s+de\s+acero\s*[:\-–—]\s*)', '', raw_title, flags=re.IGNORECASE).strip()
+            raw_title = re.sub(r'^(sabidur[ií]a\s+femenina\s*[:\-–—]\s*)', '', raw_title, flags=re.IGNORECASE).strip()
             raw_title = re.sub(r'^(orador\s+motivacional\s*[:\-–—]\s*)', '', raw_title, flags=re.IGNORECASE).strip()
         elif clean_speaker:
             # Strip accidental "Speaker:" or "Dra. Speaker:" prefix from beginning if LLM generated it
@@ -484,10 +491,21 @@ def spin_motivational_metadata(
         desc = data.get("description", "")
         # Ensure description begins with hashtags if not already present
         if clean_speaker and not desc.strip().startswith("#"):
-            tag_line = f"#{clean_speaker.lower().replace(' ', '')} #habitosdeacero #desarrollopersonal #disciplina\n\n"
+            tag_line = f"#{clean_speaker.lower().replace(' ', '')} #sabiduriafemenina #psicologiafemenina #amorpropio\n\n"
             desc = tag_line + desc.strip()
-        tags = data.get("tags", ["habitos de acero", "dr mario", "desarrollopersonal", "disciplina"])
+        tags = data.get("tags", [clean_speaker.lower(), "sabiduria femenina", "psicologia femenina", "amor propio", "relaciones de pareja"])
         cat = data.get("category", "Education")
+        hook = data.get("thumbnail_hook") or "APRENDE A SOLTAR"
+
+        print(f"[metadata_generator] Spun altered title: \"{title}\" (from \"{original_title[:45]}...\")")
+        return {
+            "title": title,
+            "description": desc,
+            "tags": tags[:18],
+            "category": cat,
+            "speaker_name": clean_speaker,
+            "thumbnail_hook": hook,
+        }
 
         print(f"[metadata_generator] Spun altered title: \"{title}\" (from \"{original_title[:45]}...\")")
         return {

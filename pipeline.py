@@ -527,29 +527,51 @@ def run_pipeline(
     
     thumbnail_path = None
 
-    # Check for direct pre-configured / matching reference thumbnail
-    video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})', url) if url else None
-    vid_id = video_id_match.group(1) if video_id_match else None
-    if vid_id:
-        for possible_thumb in [
-            os.path.join(config.ASSETS_DIR, "thumbnails", f"{vid_id}_thumb.jpg"),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "incoming_audio", f"{vid_id}_thumb.jpg"),
-        ]:
-            if os.path.exists(possible_thumb) and os.path.getsize(possible_thumb) > 1000:
-                import shutil
-                target_thumb = os.path.join(config.OUTPUT_DIR, f"thumb_{vid_id}.jpg")
-                shutil.copy2(possible_thumb, target_thumb)
-                thumbnail_path = target_thumb
-                log(f"✅ Using exact winning reference thumbnail: {thumbnail_path}")
-                break
+    # 1. Primary Strategy: High-CTR Studio Composite Thumbnail (High-contrast typography + Nilda portrait + Authority Badge)
+    thumb_hook = metadata.get("thumbnail_hook")
+    try:
+        log("🎨 Generating high-CTR studio composite thumbnail (high contrast + speaker authority)...")
+        studio_thumb_name = f"thumb_{re.sub(r'[^a-zA-Z0-9]+', '_', final_youtube_title or 'video')[:35].lower()}.jpg"
+        studio_target_path = os.path.join(config.OUTPUT_DIR, studio_thumb_name)
+        thumbnail_path = thumbnail_gen.generate_thumbnail(
+            topic=final_youtube_title or topic,
+            output_path=studio_target_path,
+            background_image_path=best_bg_image,
+            overlay_text=thumb_hook,
+            badge_text=badge_label or "NILDA CHIARAVIGLIO",
+        )
+        if thumbnail_path and os.path.exists(thumbnail_path) and os.path.getsize(thumbnail_path) > 5000:
+            log(f"✅ High-CTR Studio thumbnail successfully generated: {thumbnail_path}")
+    except Exception as e:
+        log(f"⚠️ Studio thumbnail generation note: {e}")
+        thumbnail_path = None
 
-    # Auto-enhance source creator thumbnail to Full HD with crisp edges and enhanced colors
+    # 2. Secondary Fallback: Direct pre-configured / matching reference thumbnail
+    if not thumbnail_path:
+        video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})', url) if url else None
+        vid_id = video_id_match.group(1) if video_id_match else None
+        if vid_id:
+            for possible_thumb in [
+                os.path.join(config.ASSETS_DIR, "thumbnails", f"{vid_id}_thumb.jpg"),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "incoming_audio", f"{vid_id}_thumb.jpg"),
+            ]:
+                if os.path.exists(possible_thumb) and os.path.getsize(possible_thumb) > 1000:
+                    import shutil
+                    target_thumb = os.path.join(config.OUTPUT_DIR, f"thumb_{vid_id}.jpg")
+                    shutil.copy2(possible_thumb, target_thumb)
+                    thumbnail_path = target_thumb
+                    log(f"✅ Using exact winning reference thumbnail: {thumbnail_path}")
+                    break
+
+    # 3. Tertiary Fallback: Auto-enhance source creator thumbnail to Full HD
     yt_meta_info = locals().get("yt_data") or locals().get("yt_meta")
     if not thumbnail_path and yt_meta_info and yt_meta_info.get("thumbnail_url"):
         try:
             import urllib.request
             from PIL import Image, ImageEnhance, ImageFilter
             src_thumb_url = yt_meta_info["thumbnail_url"]
+            video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})', url) if url else None
+            vid_id = video_id_match.group(1) if video_id_match else None
             if vid_id and ("img.youtube.com" in src_thumb_url or "i.ytimg.com" in src_thumb_url):
                 src_thumb_url = f"https://i.ytimg.com/vi/{vid_id}/maxresdefault.jpg"
             temp_dl = os.path.join(config.TEMP_DIR, f"raw_thumb_{vid_id or 'src'}.jpg")
@@ -571,28 +593,6 @@ def run_pipeline(
                 log(f"✅ Successfully enhanced reference thumbnail to 1080p HD: {thumbnail_path}")
         except Exception as e:
             log(f"⚠️ Source thumbnail enhancement note: {e}")
-
-    if not thumbnail_path and "nazareth" in (detected_speaker or "").lower() and os.path.exists(os.path.join(config.ASSETS_DIR, "clean_armchair_plate.jpg")):
-        try:
-            from generate_winning_armchair_thumb import render_winning_thumbnail
-            thumb_name = f"thumb_{re.sub(r'[^a-zA-Z0-9]+', '_', final_youtube_title or 'video')[:35].lower()}.jpg"
-            thumb_target_path = os.path.join(config.OUTPUT_DIR, thumb_name)
-            thumbnail_path = render_winning_thumbnail(
-                line1="NO HABLES",
-                line2="DE TU VIDA",
-                speaker_badge="DRA. NAZARETH CASTELLANOS",
-                output_filename=thumb_target_path
-            )
-            log(f"✅ Generated high-CTR armchair thumbnail: {thumbnail_path}")
-        except Exception as e:
-            log(f"⚠️ Custom armchair thumb warning: {e}")
-
-    if not thumbnail_path or not os.path.exists(thumbnail_path):
-        thumbnail_path = thumbnail_gen.generate_thumbnail(
-            topic=final_youtube_title or topic,
-            background_image_path=best_bg_image,
-            badge_text=badge_label,
-        )
     thumb_time = time.time() - thumb_start
     log(f"✅ Thumbnail ready in {thumb_time:.1f}s: {thumbnail_path}")
 

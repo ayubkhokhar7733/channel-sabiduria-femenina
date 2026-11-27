@@ -132,7 +132,7 @@ def _build_studio_bg(W: int, H: int) -> Image.Image:
 
     grad_col = np.stack([grad_r, grad_g, grad_b], axis=1)
     grad_arr = np.broadcast_to(grad_col[:, None, :], (H, W, 3)).copy()
-    return Image.fromarray(grad_arr, mode="RGB").convert("RGBA")
+    return Image.fromarray(grad_arr).convert("RGBA")
 
 
 def generate_thumbnail(
